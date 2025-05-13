@@ -8,6 +8,7 @@ namespace Snog.EnemyFSM.Interfaces
     public interface IMovementController 
     {
         void MoveTo(Vector3 target, float speed);
+        void Stop();
         bool IsAtDestination [ get; ]     
     }
 }

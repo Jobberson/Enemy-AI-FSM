@@ -21,6 +21,7 @@ namespace Snog.EnemyFSM.Enemy
         [SerializeField][Tooltip("Speficic config for investigate state")] private InvestigateConfig investigateConfig;
         [SerializeField][Tooltip("Speficic config for search state")] private SearchConfig searchConfig;
         [SerializeField][Tooltip("Speficic config for recover state")] private RecoverConfig recoverConfig;
+        [SerializeField][Tooltip("Speficic config for recover state")] private StalkConfig stalkConfig;
         [SerializeField][Tooltip("Movement controller implementing IMovementController")] MonoBehaviour movementController; // cast to interface
         [SerializeField][Tooltip("Vision Sensor implementing IVisionDetector")] private EnemyVision vision;
         [SerializeField][Tooltip("Noise sensor implementing INoiseDetector")] private EnemyNoiseDetection noise;
@@ -33,13 +34,15 @@ namespace Snog.EnemyFSM.Enemy
         private IState _investigateState;
         private IState _searchState;
         private IState _recoverState;
+        private IState _stalkState;
         #endregion
 
         #region Unity Methods
         private void Awake() 
         {
             InitializeContext();
-            InitializeStates;
+            InitializeStates();
+            InitializeStateMachine();
         }
 
         private void Update() 
@@ -69,6 +72,13 @@ namespace Snog.EnemyFSM.Enemy
             _investigateState = new InvestigateState(_context, _investigateConfig);
             _searchState = new SearchState(_context, _searchConfig);
             _recoverState = new RecoverState(_context, _recoverConfig);
+            _stalkState = new StalkState(_context, _stalkConfig);
+        }
+
+        private void InitializeStateMachine()
+        {
+            _fsm = new StateMachine<IState>();
+            _fsm.ChangeState(_wanderState);
         }
         #endregion
     } 

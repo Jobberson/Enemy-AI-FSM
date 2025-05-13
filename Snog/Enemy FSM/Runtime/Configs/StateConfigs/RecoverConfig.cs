@@ -12,8 +12,7 @@ namespace Snog.EnemyFSM.Configs
     )]
     public class RecoverConfig : ScriptableObject
     {
-        [SerializeField][Tooltip("Duration in seconds of the recover state")] 
-        private float recoverDuration = 15f;
+        [SerializeField][Tooltip("Duration in seconds of the recover state")] private float recoverDuration = 15f;
 
         private void OnValidate() 
         {

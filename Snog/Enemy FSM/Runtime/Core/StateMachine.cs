@@ -1,30 +1,31 @@
 using UnityEngine; 
 
-namespace Snog.EnemyFSM.Core 
+namespace YourBrand.FSM.Core
 {
     /// <summary>
-    /// A resusable Finite State Machine bas class.
-    /// Manages current state and handles transitions.
+    /// Generic, reusable finite state machine.
+    /// Handles state transitions and ticking the active state.
     /// </summary>
-    public class StateMachine<TState> : MonoBehaviour where TState : IState
+    public class StateMachine<T> where T : IState
     {
-        private TState _currentState;
-        
-        /// <summary>
-        /// Changes the active state. 
-        /// Calls Exit() on the old state and Enter() on the new state.
-        /// </summary>
-        public ChangeState(TState newState)
-        {
+        public T CurrentState { get; private set; }
 
+        // Name of the current state (for debug display).
+        public string CurrentStateName => CurrentState?.GetType().Name ?? "None";
+
+        // Transitions to a new state.
+        public void ChangeState(T newState)
+        {
+            if (newState == null) throw new ArgumentNullException(nameof(newState));
+            CurrentState?.Exit();
+            CurrentState = newState;
+            CurrentState.Enter();
         }
 
-        /// <summary>
-        /// Call this each frame to uptade the current state
-        /// </summary>
+        // Should be called every frame to update the active state.
         public void Tick()
         {
-
+            CurrentState?.Tick();
         }
     }
 }

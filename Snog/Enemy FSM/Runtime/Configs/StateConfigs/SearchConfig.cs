@@ -12,11 +12,8 @@ namespace Snog.EnemyFSM.Configs
     )]
     public class SearchConfig : ScriptableObject
     {
-        [SerializeField][Tooltip("The radius where the enemy can choose a point to search")] 
-        private float searchCircleRadius = 15f;
-
-        [SerializeField][Tooltip("Time to search for the player after losing sight")] 
-        private float searchDuration = 10f; 
+        [SerializeField][Tooltip("The radius where the enemy can choose a point to search")] private float searchCircleRadius = 15f;
+        [SerializeField][Tooltip("Time to search for the player after losing sight")] private float searchDuration = 10f; 
 
         private void OnValidate() 
         {
