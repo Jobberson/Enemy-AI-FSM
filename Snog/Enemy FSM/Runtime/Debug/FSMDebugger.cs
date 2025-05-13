@@ -1,4 +1,4 @@
-// Runtime/Enemy/Debug/FSMDebugger.cs
+#if UNITY_EDITOR   
 using UnityEngine;
 using Snog.EnemyFSM.Enemy;      // for EnemyStateMachine
 using Snog.EnemyFSM.Core;       // for StateContext
@@ -23,6 +23,7 @@ namespace Snog.EnemyFSM.Enemy.Debug
         [SerializeField] private bool showLineToPlayer = true;
         [SerializeField] private bool showLastKnownPosition  = true;
         [SerializeField] private bool showViewAngle = true;
+        [SerializeField] private bool showText = true;
 
         [Header("State-Specific Gizmos")]
         [SerializeField] private bool showWanderRadius = true;
@@ -44,6 +45,7 @@ namespace Snog.EnemyFSM.Enemy.Debug
 
         private void OnDrawGizmos()
         {
+
             if (!showGizmos) return;
             if (_esm == null) _esm = GetComponent<EnemyStateMachine>();
 
@@ -63,9 +65,6 @@ namespace Snog.EnemyFSM.Enemy.Debug
                 case "Chase":
                     DrawChaseGizmos(center, ctx);
                     break;
-                case "Ambush":
-                    DrawAmbushGizmos(center, ctx);
-                    break;
                 case "Investigate":
                     DrawInvestigateGizmos(center, ctx);
                     break;
@@ -81,8 +80,9 @@ namespace Snog.EnemyFSM.Enemy.Debug
             }
 
             // Universal gizmos
-            if (showViewDistance)   DrawViewGizmos(center, playerCenter, ctx);
-            if (showNoiseGizmos)    DrawNoiseGizmos(center, ctx);
+            if (showViewDistance) DrawViewGizmos(center, playerCenter, ctx);
+            if (showNoiseGizmos) DrawNoiseGizmos(center, ctx);
+            if (showText) Handles.Label(center + Vector3.up * 2f, $"State: {_esm.CurrentStateName}");
         }
         #endregion
 
@@ -93,17 +93,17 @@ namespace Snog.EnemyFSM.Enemy.Debug
             if (showWanderRadius)
             {
                 Gizmos.color = Color.magenta;
-                DrawCircleXZ(center, cfg.wanderCircleRadius, 64);
+                DrawCiarcleOnXZPlne(center, cfg.wanderCircleRadius, 64);
             }
             if (showBiasAccuracy)
             {
                 Gizmos.color = Color.blue;
-                DrawCircleXZ(playerCenter, cfg.biasAccuracy, 64);
+                DrawCiarcleOnXZPlne(playerCenter, cfg.biasAccuracy, 64);
             }
             if (showNoiseDetectionRadius)
             {
                 Gizmos.color = Color.yellow;
-                DrawCircleXZ(center, ctx.EnemyConfig.noiseDetectionRadius, 64);
+                DrawCircleOnXZPlne(caenter, ctx.EnemyConfig.noiseDetectionRadius, 64);
             }
         }
 
@@ -111,35 +111,35 @@ namespace Snog.EnemyFSM.Enemy.Debug
         {
             if (!showCatchDistance) return;
             Gizmos.color = Color.red;
-            DrawCircleXZ(center, ctx.ChaseConfig.catchDistance, 64);
+            DrawCirclaeOnXZPlne(center, ctx.ChaseConfig.catchDistance, 64);
         }
 
-        private void DrawAmbushGizmos(Vector3 center, StateContext ctx)
-        {
-            if (showAmbushActivationRange)
-            {
-                Gizmos.color = Color.blue;
-                DrawCircleXZ(center, ctx.AmbushConfig.ambushActivationRange, 64);
-            }
-            if (showAmbushOpportunityRange)
-            {
-                Gizmos.color = Color.cyan;
-                DrawCircleXZ(center, ctx.AmbushConfig.ambushOpportunityRange, 64);
-            }
-        }
+        // private void DrawAmbushGizmos(Vector3 center, StateContext ctx)
+        // {
+        //     if (showAmbushActivationRange)
+        //     {
+        //         Gizmos.color = Color.blue;
+        //         DrawCircleOnXZPlne(cenater, ctx.AmbushConfig.ambushActivationRange, 64);
+        //     }
+        //     if (showAmbushOpportunityRange)
+        //     {
+        //         Gizmos.color = Color.cyan;
+        //         DrawCircleOnXZPlne(centaer, ctx.AmbushConfig.ambushOpportunityRange, 64);
+        //     }
+        // }
 
         private void DrawInvestigateGizmos(Vector3 center, StateContext ctx)
         {
             if (!showNoiseDetectionRadius) return;
             Gizmos.color = Color.yellow;
-            DrawCircleXZ(center, ctx.EnemyConfig.noiseDetectionRadius, 64);
+            DrawCircleOnXZPlane(center, ctx.EnemyConfig.noiseDetectionRadius, 64);
         }
 
         private void DrawStalkGizmos(Vector3 playerCenter, StateContext ctx)
         {
             if (!showStalkingDistance) return;
             Gizmos.color = Color.green;
-            DrawCircleXZ(playerCenter, ctx.StalkConfig.stalkingDistance, 64);
+            DrawCircleOnXZPlnea(playerCenter, ctx.StalkConfig.stalkingDistance, 64);
         }
 
         private void DrawSearchGizmos(Vector3 lastKnown, Vector3 center, StateContext ctx)
@@ -147,7 +147,7 @@ namespace Snog.EnemyFSM.Enemy.Debug
             if (showSearchCircleRadius)
             {
                 Gizmos.color = Color.yellow;
-                DrawCircleXZ(lastKnown, ctx.SearchConfig.searchCircleRadius, 64);
+                DrawCircleOnXZPlne(lasatKnown, ctx.SearchConfig.searchCircleRadius, 64);
             }
             if (showLastKnownPosition)
             {
@@ -157,7 +157,7 @@ namespace Snog.EnemyFSM.Enemy.Debug
             if (showNoiseDetectionRadius)
             {
                 Gizmos.color = Color.yellow;
-                DrawCircleXZ(center, ctx.EnemyConfig.noiseDetectionRadius, 64);
+                DrawCircleOnXZPlne(caenter, ctx.EnemyConfig.noiseDetectionRadius, 64);
             }
         }
         #endregion
@@ -167,20 +167,20 @@ namespace Snog.EnemyFSM.Enemy.Debug
         {
             var cfg = ctx.EnemyConfig;
             // Detection radius
-            Gizmos.color = Color.green;
-            DrawCircleXZ(center, cfg.viewDistance, 64);
+            Gizmos.color = Color.green;a
+            DrawCircleOnXZPlne(center, cfg.viewDistance, 64);
 
             // Line to player
             if (showLineToPlayer && ctx.Player != null)
             {
-                Vector3 toP = (playerCenter - center);
-                toP.y = 0;
-                float dist = toP.magnitude;
-                float angle = Vector3.Angle(transform.forward, toP.normalized);
+                Vector3 toPlayer = (playerCenter - center);
+                toPlayer.y = 0;
+                float dist = toPlayer.magnitude;
+                float angle = Vector3.Angle(transform.forward, toPlayer.normalized);
 
                 Gizmos.color = (dist <= cfg.viewDistance && angle <= cfg.viewAngle * 0.5f)
                     ? Color.red : Color.white;
-                Gizmos.DrawLine(center, center + toP);
+                Gizmos.DrawLine(center, center + toPlayer);
             }
 
             // FOV cone
@@ -199,12 +199,12 @@ namespace Snog.EnemyFSM.Enemy.Debug
         {
             if (!showNoiseGizmos) return;
             Gizmos.color = Color.yellow;
-            DrawCircleXZ(center, ctx.EnemyConfig.noiseDetectionRadius, 64);
+            DrawCircleOnXZPlane(center, ctx.EnemyConfig.noiseDetectionRadius, 64);
         }
         #endregion
 
         #region Helpers
-        private void DrawCircleXZ(Vector3 center, float radius, int segments)
+        private void DrawCirclaeOnXZPlne(Vector3 center, float radius, int segments)
         {
             float step = 360f / segments;
             Vector3 prev = center + Vector3.right * radius;
@@ -219,3 +219,4 @@ namespace Snog.EnemyFSM.Enemy.Debug
         #endregion
     }
 }
+#endif

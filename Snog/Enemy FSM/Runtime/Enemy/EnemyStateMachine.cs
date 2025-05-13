@@ -10,25 +10,25 @@ namespace Snog.EnemyFSM.Enemy
     /// MonoBevahiour that manages the state machine.
     /// Initializes state context and transitions between states.
     /// </summary>
-    public public class EnemyStateMachine : MonoBehaviour
+    public class EnemyStateMachine : MonoBehaviour
     {
         #region Variables
         [Header("General References")]
         [SerializeField] private Transform player;
         [SerializeField][Tooltip("Shared enemy config")] private EnemyConfig enemyConfig;
-        [SerializeField][Tooltip("Speficic config for wander state")] private WanderConfig wanderConfig;
-        [SerializeField][Tooltip("Speficic config for chase state")] private ChaseConfig chaseConfig;
-        [SerializeField][Tooltip("Speficic config for investigate state")] private InvestigateConfig investigateConfig;
-        [SerializeField][Tooltip("Speficic config for search state")] private SearchConfig searchConfig;
-        [SerializeField][Tooltip("Speficic config for recover state")] private RecoverConfig recoverConfig;
-        [SerializeField][Tooltip("Speficic config for recover state")] private StalkConfig stalkConfig;
-        [SerializeField][Tooltip("Movement controller implementing IMovementController")] MonoBehaviour movementController; // cast to interface
+        [SerializeField][Tooltip("Specific config for wander state")] private WanderConfig wanderConfig;
+        [SerializeField][Tooltip("Specific config for chase state")] private ChaseConfig chaseConfig;
+        [SerializeField][Tooltip("Specific config for investigate state")] private InvestigateConfig investigateConfig;
+        [SerializeField][Tooltip("Specific config for search state")] private SearchConfig searchConfig;
+        [SerializeField][Tooltip("Specific config for recover state")] private RecoverConfig recoverConfig;
+        [SerializeField][Tooltip("Specific config for stalk state")] private StalkConfig stalkConfig;
+        [SerializeField][Tooltip("Movement controller implementing IMovementController")] private MonoBehaviour movementController; // cast to interface
         [SerializeField][Tooltip("Vision Sensor implementing IVisionDetector")] private EnemyVision vision;
         [SerializeField][Tooltip("Noise sensor implementing INoiseDetector")] private EnemyNoiseDetection noise;
 
         // private variables
-        private Statemachne<IState> _fsm;
-        private StateContect _context;
+        private StateMachne<IState> _fsm;
+        private StateContext _context;
         private IState _wanderState;
         private IState _chaseState;
         private IState _investigateState;
@@ -56,7 +56,7 @@ namespace Snog.EnemyFSM.Enemy
         {
             _context = new StateContext
             {
-                Owner = this.Transform;
+                Owner = this.transform;
                 Player = player;
                 EnemyConfig = enemyConfig;
                 Movement = movementController as IMovementController;

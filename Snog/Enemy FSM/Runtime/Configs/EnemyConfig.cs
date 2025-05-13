@@ -47,10 +47,10 @@ namespace Snog.EnemyFSM.Configs
         public float minRecoverDuration = 5f;
 
         [Tooltip("Max chase duration allowed after intensity increase.")]
-        public float maxMaxChaseDuration = 25f;
+        public float maxChaseDurationCap = 25f;
 
         [Tooltip("Max min-chase duration allowed after intensity increase.")]
-        public float maxMinChaseDuration = 20f;
+        public float minChaseDurationCap  = 20f;
 
         [Tooltip("Max view distance allowed after intensity increase.")]
         public float maxViewDistance = 20f;
@@ -73,6 +73,11 @@ namespace Snog.EnemyFSM.Configs
         [Tooltip("Min bias accuracy allowed after intensity increase.")]
         public float maxBiasAccuracy = 10f;
 
+        /// <summary>
+        /// OnValidate is called at various stages during the Editor's normal operation, 
+        /// such as loading scenes. 
+        /// This ensures that the values never ecced a certain threshold.
+        /// </summary>
         private void OnValidate()
         {
             wanderSpeed = Mathf.Max(0f, wanderSpeed);
@@ -88,8 +93,8 @@ namespace Snog.EnemyFSM.Configs
             chaseLoseTime = Mathf.Max(0f, chaseLoseTime);
 
             minRecoverDuration = Mathf.Max(0f, minRecoverDuration);
-            maxMaxChaseDuration = Mathf.Max(0f, maxMaxChaseDuration);
-            maxMinChaseDuration = Mathf.Max(0f, maxMinChaseDuration);
+            maxChaseDurationCap = Mathf.Max(0f, maxChaseDurationCap);
+            minChaseDurationCap = Mathf.Max(0f, minChaseDurationCap);
             maxViewDistance = Mathf.Max(0f, maxViewDistance);
             minTimeToSpotPlayer = Mathf.Max(0f, minTimeToSpotPlayer);
             maxWanderSpeed = Mathf.Max(0f, maxWanderSpeed);

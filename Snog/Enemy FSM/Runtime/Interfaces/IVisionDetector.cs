@@ -6,7 +6,8 @@ namespace Snog.EnemyFSM.Interfaces
     /// Abstracts Vision
     /// </summary>
     public interface IVisionDetector 
-    {
-        void CanSeePlayer();  
+    {    
+        bool CanSeeTarget(Transform target);
+        Vector3 LastSeenPosition { get; }
     }
 }
