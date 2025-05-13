@@ -7,16 +7,22 @@ namespace Snog.EnemyFSM.Core
     /// </summary>
     public class StateContext
     {
-        public Transform Onwer { get; set; }
+        public Transform Owner { get; set; }
         public Transform Player { get; set; }
+
         public EnemyConfig EnemyConfig { get; set; }
-        public IMovementController Movement { get; set; }
-        public IVisionDetector Vision { get; set; }
-        public INoiseDetection Noise { get; set; }
         public WanderConfig WanderConfig { get; set; }
         public StalkConfig StalkConfig { get; set; }
         public ChaseConfig ChaseConfig { get; set; }
         public SearchConfig SearchConfig { get; set; }
         public RecoverConfig RecoverConfig { get; set; }
+
+        public IMovementController Movement { get; set; }
+        public IVisionDetector Vision { get; set; }
+        public INoiseDetector Noise { get; set; }
+
+        // Runtime data
+        public float TensionLevel { get; set; }
+        public Vector3 LastKnownPosition { get; set; }
     }
 }
