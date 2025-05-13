@@ -1,5 +1,6 @@
 using UnityEngine;
 using Pathfinding;
+using T0M1.ShowOnlyTool;
 using System.Collections.Generic;
 
 /// <summary>
@@ -18,6 +19,7 @@ public class Enemy : MonoBehaviour
     private SearchState searchState;
     private RecoverState recoverState;
     private StalkState stalkState;
+    private AmbushState ambushState;
 
     [Header("Movement Speeds")]
     [SerializeField] private float wanderSpeed = 6f;
@@ -50,8 +52,10 @@ public class Enemy : MonoBehaviour
     [SerializeField][Tooltip("Min time in seconds that the enem will be waiting if the player doesn't come close enough in time")] private float minAmbushDuration = 10f;
     [SerializeField][Tooltip("Time in seconds that the enemy will wait when player is walking away from it")] private float walkAwayTimer = 5f; 
     [SerializeField] private Transform[] ambushPositions;
-    [SerializeField] private float ambushActivationRange = 10f;
-    [SerializeField] private float ambushOpportunityRange = 40f;
+    [SerializeField] private float arrivedThreshold = 1f; // how close the enemy needs to be to the ambush position
+    [SerializeField] private float ambushMaxDistance = 10f; // how far is too far for a hiuding spot
+    [SerializeField] private float ambushActivationRange = 10f; // when to jump on the player
+    [SerializeField] private float ambushOpportunityRange = 40f; // checks if player is moving towards the enemy within this range
     [SerializeField][Tooltip("Allow for ambush every n seconds")] private float ambushTimer = 60;
 
     [Header("Recover State")]
@@ -62,6 +66,9 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float viewDistance = 10f;
     [SerializeField] private float viewAngle = 60f;
     [SerializeField][Tooltip("Time required to confirm seeing the player")] private float timeToSpotPlayer = 1f;
+
+    [Header("Noise")]
+    [SerializeField] private float noiseDetectionRadius = 8f;
 
     [Header("Timers")]
     [SerializeField][Tooltip("Time to give up chase after losing sight")] private float chaseLoseTime = 3f;
@@ -85,7 +92,7 @@ public class Enemy : MonoBehaviour
     private Vector3 _playerLastKnownPosition;
     private Vector3 _investigateTarget;
     private Vector3 _previousPosition;
-    private float _ambushTimer = ambushTimer;
+    private float _ambushTimer;
 
     // -- Components --
     [Header("A* Pathfinding")]
@@ -109,6 +116,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] private bool showNoiseGizmos = true;
     [SerializeField] private bool showViewDistance = true;
     [SerializeField] private bool showLineToPLayer = true;
+    [SerializeField] private bool showLastKnownPosition = true;
     [SerializeField] private bool showViewAngle = true;
     [SerializeField] private bool showWanderRadius = true; // wander bias bypasses this range
     [SerializeField] private bool showBiasAccuracy = true;
@@ -117,6 +125,8 @@ public class Enemy : MonoBehaviour
     [SerializeField] private bool showAmbushActivationRange = true;
     [SerializeField] private bool showAmbushOpportunityRange = true;
     [SerializeField] private bool showSearchCircleRadius = true;
+    [SerializeField] private bool showNoiseDetectionRadius = true;
+    
 
     private Vector3 _noisePosGizmos;
     private float _noiseRadiusGizmos;
@@ -154,7 +164,7 @@ public class Enemy : MonoBehaviour
             player = GameObject.FindGameObjectWithTag("Player").transform;
 
         enemySpotlight.SetActive(false);
-        previousPosition = player.position;
+        _previousPosition = player.position;
 
         // Initialize states
         InitializeStates();
@@ -170,7 +180,7 @@ public class Enemy : MonoBehaviour
     {
         currentState.Update();
 
-        if(_ambushTimer == ambushTimer)
+        if(_ambushTimer >= ambushTimer)
         {
             canAmbush = true;
         } 
@@ -208,6 +218,7 @@ public class Enemy : MonoBehaviour
         searchState = new SearchState(this);
         recoverState = new RecoverState(this);
         stalkState = new StalkState(this);
+        ambushState = new AmbushState(this);
     }
     #endregion
 
@@ -227,7 +238,10 @@ public class Enemy : MonoBehaviour
         else if (dist <= radius) // if outside view distance but inside noise radius
         {
             _investigateTarget = noisePos;
-            ChangeState(investigateState);
+
+            if(currentState != investigateState && currentState != ambushState && currentState != stalkState)
+                ChangeState(investigateState);
+
 #if UNITY_EDITOR
             _noisePosGizmos = noisePos;
             _noiseRadiusGizmos = radius;
@@ -263,6 +277,7 @@ public class Enemy : MonoBehaviour
                 if (hit.collider.CompareTag("Player"))
                 {
                     _playerLastKnownPosition = player.position;
+                   // Debug.LogWarning("Player spotted by " + eye.name);
                     return true;
                 }
             }
@@ -391,20 +406,21 @@ public class Enemy : MonoBehaviour
 
     public bool CheckForAmbushOpportunity()
     {
-        if(Vector3.Distance(gameObject.transform, player) > ambushOpportunityRange)
+        if(Vector3.Distance(transform.position, player.position) > ambushOpportunityRange)
             return false;
         
-        Vector3 currentPosition = player.position;
-        Vector3 directionToTarget = (target.position - currentPosition).normalized;
-        Vector3 playerMovement = (currentPosition - _previousPosition).normalized;
+        Vector3 currentPosition = transform.position;
+        Vector3 toEnemyLastFrame = (_previousPosition - transform.position).normalized;
+        Vector3 toEnemyNow       = (player.position  - transform.position).normalized;
         
-        float dotProduct = Vector3.Dot(directionToTarget, playerMovement);
+        float dotProduct = Vector3.Dot(toEnemyLastFrame, toEnemyNow);
 
         _previousPosition = currentPosition;
 
         if (dotProduct > 0) // Player is moving towards the target
         {
-            return true;
+            //return true;
+            return false;
         }
         else if (dotProduct < 0) // Player is moving away from the target
         {
@@ -422,24 +438,45 @@ public class Enemy : MonoBehaviour
         canAmbush = false;
     }
 
-    public Transform FindNearestTransform(Transform self, Transform[] targets)
-    {
-        Transform nearestTarget = null;
-        float shortestDistance = Mathf.Infinity;
+    // public Transform FinNearestTransform(Transform self, Transform[] targets)
+    // {
+    //     Transform nearestTarget = null;
+    //     float shortestDistance = Mathf.Infinity;
 
-        foreach (Transform target in targets)
+    //     foreach (Transform target in targets)
+    //     {
+    //         float distance = Vector3.Distance(self.position, target.position);
+    //         if (distance < shortestDistance)
+    //         {
+    //             shortestDistance = distance;
+    //             nearestTarget = target;
+    //         }
+    //     }
+
+    //     return nearestTarget;
+    // }
+
+    public Transform FindNearestTransform(Transform origin, Transform[] targets, float minSqrDist = 0f)
+    {
+        Transform best = null;
+        float bestSqr = Mathf.Infinity;
+        Vector3 pos = origin.position;
+
+        foreach (var t in targets)
         {
-            float distance = Vector3.Distance(self.position, target.position);
-            if (distance < shortestDistance)
+            if (t == null) continue;
+            float sqr = (t.position - pos).sqrMagnitude;
+            if (sqr <= minSqrDist) continue;       // skip too-close spots
+            if (sqr < bestSqr)
             {
-                shortestDistance = distance;
-                nearestTarget = target;
+                bestSqr = sqr;
+                best = t;
             }
         }
 
-        return nearestTarget;
+        return best;
     }
-
+    
     // Accessors for target data
     #region Accessors
     public Transform Player() => player;
@@ -476,6 +513,7 @@ public class Enemy : MonoBehaviour
 
         public void Enter()
         {
+            Debug.LogWarning("Entering wander state");
             aiPath = enemy.AIPath();
             aiPath.endReachedDistance = 2.5f;
             enemy.currentStateName = "Wander";
@@ -493,7 +531,7 @@ public class Enemy : MonoBehaviour
                 enemy.ChangeState(enemy.stalkState);
             }
 
-            if(canAmbush && enemy.CheckForAmbushOpportunity)
+            if(enemy.canAmbush && enemy.CheckForAmbushOpportunity())
             {
                 enemy.ChangeState(enemy.ambushState);
             }
@@ -533,6 +571,7 @@ public class Enemy : MonoBehaviour
 
         public void Enter()
         {
+            Debug.LogWarning("Entering stalk state");
             aiPath = enemy.AIPath();
             aiPath.endReachedDistance = enemy.stalkingDistance;
             enemy.currentStateName = "Stalk";
@@ -552,7 +591,7 @@ public class Enemy : MonoBehaviour
                 enemy.ChangeState(enemy.wanderState);
             }
 
-            if(canAmbush && enemy.CheckForAmbushOpportunity)
+            if(enemy.canAmbush && enemy.CheckForAmbushOpportunity())
             {
                 enemy.ChangeState(enemy.ambushState);
             }
@@ -584,6 +623,7 @@ public class Enemy : MonoBehaviour
 
         public void Enter()
         {
+            Debug.LogWarning("Entering investigate state");
             noisePos = enemy.InvestigateTarget();
             enemy.currentStateName = "Investigate";
             aiPath = enemy.AIPath();
@@ -604,7 +644,8 @@ public class Enemy : MonoBehaviour
             // If it arrived, immediately return to wandering
             if (dist <= arriveThreshold)
             {
-                enemy.ChangeState(enemy.wanderState);
+                // i need to change this bc of search state
+                enemy.ChangeState(enemy.previousState);
                 return;
             }
 
@@ -632,6 +673,7 @@ public class Enemy : MonoBehaviour
 
         public void Enter()
         {
+            Debug.LogWarning("Entering chase state");
             aiPath = enemy.AIPath();
             aiPath.endReachedDistance = 0.5f;
             enemy.currentStateName = "Chase";
@@ -684,6 +726,7 @@ public class Enemy : MonoBehaviour
 
         public void Enter()
         {
+            Debug.LogWarning("Entering search state");
             aiPath = enemy.AIPath();
             aiPath.endReachedDistance = 4f;
             enemy.currentStateName = "Search";
@@ -734,57 +777,67 @@ public class Enemy : MonoBehaviour
         private Enemy enemy;
         public AmbushState(Enemy enemy) { this.enemy = enemy; }
 
-        private float ambushDuration = Random.Range(minAmbushDuration, maxAmbushDuration); // randomize waiting time
-        private Transform nearestTarget;
+        private float ambushDuration; // randomize waiting time
         private bool isAmbushing = false;
         private float timer = 0f;
         private float timer2 = 0f;
+        private Transform ambushSpot;
 
-        public Enter()
+        public void Enter()
         {
+            Debug.LogWarning("Entering ambush state");
+            ambushDuration = Random.Range(enemy.minAmbushDuration, enemy.maxAmbushDuration);
             enemy.ResetAmbushTimer();
-            nearestTarget = enemy.FindNearestTransform(gameObject.transform, ambushPositions); // find nearest ambush position
 
-            if(Vector3.Distance(transform.position, nearestTarget.position) < 15f) // checks to see if ambush pos is close enough
+            float maxSqr = enemy.ambushMaxDistance * enemy.ambushMaxDistance;
+            ambushSpot = enemy.FindNearestTransform(
+                enemy.transform, 
+                enemy.ambushPositions, 
+                maxSqr
+            );
+
+            if (ambushSpot == null)
             {
-                enemy.MoveTowards(nearestTarget.position, enemy.GetChaseSpeed()); // if yes, move to it
-                isAmbushing = true;
+                enemy.ChangeState(enemy.wanderState);
+                return;
             }
-            else
-            {
-                enemy.ChangeState(enemy.previousState) // if not, return to last state
-            }
+            isAmbushing = true;
+            enemy.MoveTowards(ambushSpot.position, enemy.ChaseSpeed());
         }
 
-        public Update()
+        public void Update()
         {
-            if(!isAmbushing) return;
+            if(!isAmbushing || ambushSpot == null) return;
 
-            if(!enemy.CheckForAmbushOpportunity()) // if player walks away...
+            float arriveSqr = enemy.arrivedThreshold * enemy.arrivedThreshold;
+            if ((ambushSpot.position - enemy.transform.position).sqrMagnitude <= arriveSqr)
             {
-                timer2 = 0f;
+                if(!enemy.CheckForAmbushOpportunity()) // if player walks away...
+                {
+                    timer2 = 0f;
 
-                if(enemy.walkAwayTimer > timer) // wait to see if player will come back
-                    timer += Time.deltaTime;
-                else 
-                    enemy.ChangeState(enemy.previousState); // return to previous state
-            }
-            else // if player doesn't walk away
-            {
-                timer = 0f;
+                    if(enemy.walkAwayTimer > timer) // wait to see if player will come back
+                        timer += Time.deltaTime;
+                    else 
+                        enemy.ChangeState(enemy.previousState); // return to previous state
+                }
+                else // if player doesn't walk away
+                {
+                    timer = 0f;
 
-                if(ambushDuration > timer2) // wait to see if player comes close enough for spider to see it
-                    {
-                        timer2 += Time.deltaTime;
-                        if(Vector3.Distance(gameObject.transform, enemy.player) <= ambushActivationRange)
-                            enemy.ChangeState(enemy.chaseState);
-                    }
-                else
-                    enemy.ChangeState(enemy.stalkState); // if not goes into stalk state
+                    if(ambushDuration > timer2) // wait to see if player comes close enough for spider to see it
+                        {
+                            timer2 += Time.deltaTime;
+                            if(Vector3.Distance(enemy.transform.position, enemy.player.position) <= enemy.ambushActivationRange)
+                                enemy.ChangeState(enemy.chaseState);
+                        }
+                    else
+                        enemy.ChangeState(enemy.stalkState); // if not goes into stalk state
+                }
             }
         }
 
-        public Exit() 
+        public void Exit() 
         { 
             enemy.ResetAmbushTimer();
         }
@@ -803,6 +856,7 @@ public class Enemy : MonoBehaviour
 
         public void Enter()
         {
+            Debug.LogWarning("Entering recover state");
             aiPath = enemy.AIPath();
             aiPath.endReachedDistance = 1.2f;
             enemy.currentStateName = "Recover";
@@ -843,14 +897,14 @@ public class Enemy : MonoBehaviour
     #endregion
     #endregion
 
-     #region Debug Gizmos
+    #region Debug Gizmos
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         if (!showGizmos) return;
 
         Vector3 center = transform.position;
-        Vector3 playerCenter = player.position;
+        Vector3 playerCenter = player != null ? player.position : center;
         Vector3 lastKnownPlayerPos = _playerLastKnownPosition;
 
         switch (currentStateName)
@@ -864,17 +918,22 @@ public class Enemy : MonoBehaviour
             case "Ambush":
                 DrawAmbushGizmos(center);
                 break;
+            case "Investigate":
+                DrawInvestigateGizmos(center);
+                break;
             case "Stalk":
                 DrawStalkGizmos(playerCenter);
                 break;
             case "Search":
-                DrawSearchGizmos(lastKnownPlayerPos);
+                DrawSearchGizmos(lastKnownPlayerPos, center);
+                break;
+            case "Recover":
                 break;
         }
 
         if(showViewDistance)
         {
-            DrawViewGizmos(center, playerCenter)
+            DrawViewGizmos(center, playerCenter);
         }
 
         if (showNoiseGizmos)
@@ -896,6 +955,12 @@ public class Enemy : MonoBehaviour
             Gizmos.color = Color.blue;
             DrawCircleXZ(playerCenter, biasAccuracy, 64);
         }
+
+        if(showNoiseDetectionRadius)
+        {
+            Gizmos.color = Color.yellow;
+            DrawCircleXZ(center, noiseDetectionRadius, 64);
+        }
     }
 
     private void DrawChaseGizmos(Vector3 center)
@@ -914,6 +979,7 @@ public class Enemy : MonoBehaviour
             Gizmos.color = Color.blue;
             DrawCircleXZ(center, ambushActivationRange, 64);
         }
+
         if (showAmbushOpportunityRange)
         {
             Gizmos.color = Color.cyan;
@@ -921,6 +987,15 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    private void DrawInvestigateGizmos(Vector3 center)
+    {
+        if(showNoiseDetectionRadius)
+        {
+            Gizmos.color = Color.yellow;
+            DrawCircleXZ(center, noiseDetectionRadius, 64);
+        }
+    }
+    
     private void DrawStalkGizmos(Vector3 playerCenter)
     {
         if (showStalkingDistance)
@@ -930,48 +1005,62 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void DrawSearchGizmos(Vector3 lastKnownPlayerPos)
+    private void DrawSearchGizmos(Vector3 lastKnownPlayerPos, Vector3 center)
     {
         if (showSearchCircleRadius)
         {
             Gizmos.color = Color.yellow;
             DrawCircleXZ(lastKnownPlayerPos, searchCircleRadius, 64);
         }
+
+        if(showLastKnownPosition)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawCube(lastKnownPlayerPos, new Vector3(1f, 2f, 1f));
+        }
+
+        if(showNoiseDetectionRadius)
+        {
+            Gizmos.color = Color.yellow;
+            DrawCircleXZ(center, noiseDetectionRadius, 64);
+        }
     }
 
     private void DrawViewGizmos(Vector3 center, Vector3 playerCenter)
     {
+        // Draw detection radius
         Gizmos.color = Color.green;
         DrawCircleXZ(center, viewDistance, 64);
-        
-        if(showLineToPLayer)
+
+        Vector3 forward = transform.forward;
+        float halfAngle = viewAngle * 0.5f;
+
+        // Draw line to player, coloring red if inside view cone
+        if (showLineToPLayer && player != null)
         {
-            if (player != null)
-            {
-                Vector3 toPlayer = playerCenter - center;
-                toPlayer.y = 0;
-                float dist = toPlayer.magnitude;
-                float angle = Vector3.Angle(forward, toPlayer.normalized);
+            Vector3 toPlayer = playerCenter - center;
+            toPlayer.y = 0f; // ignore vertical
 
-                // Change color when seeing the player
-                if (dist <= viewDistance && angle <= halfAngle)
-                    Gizmos.color = Color.red;
-                else
-                    Gizmos.color = Color.white;
+            float dist = toPlayer.magnitude;
+            float angle = Vector3.Angle(forward, toPlayer.normalized);
 
-                Gizmos.DrawLine(center, center + toPlayer);
-            }
+            if (dist <= viewDistance && angle <= halfAngle)
+                Gizmos.color = Color.red;
+            else
+                Gizmos.color = Color.white;
+
+            Gizmos.DrawLine(center, center + toPlayer);
         }
 
+        // Draw field-of-view cone
         if (showViewAngle)
         {
             Gizmos.color = Color.cyan;
-            Vector3 forward = transform.forward;
-            float halfAngle = viewAngle * 0.5f;
-            Quaternion leftRot = Quaternion.Euler(0, -halfAngle, 0);
-            Quaternion rightRot = Quaternion.Euler(0, halfAngle, 0);
+            Quaternion leftRot = Quaternion.Euler(0f, -halfAngle, 0f);
+            Quaternion rightRot = Quaternion.Euler(0f, halfAngle, 0f);
             Vector3 leftDir = leftRot * forward;
             Vector3 rightDir = rightRot * forward;
+
             Gizmos.DrawLine(center, center + leftDir * viewDistance);
             Gizmos.DrawLine(center, center + rightDir * viewDistance);
         }
