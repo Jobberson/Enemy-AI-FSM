@@ -22,6 +22,7 @@ namespace Snog.EnemyFSM.Core
         public INoiseDetector Noise { get; set; }
 
         // Runtime data
+        public IState PreviousState { get; set; }
         public float TensionLevel { get; set; }
         public Vector3 LastKnownPosition { get; set; }
     }
