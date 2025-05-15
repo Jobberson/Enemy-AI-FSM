@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Snog.EnemyFSM.Configs 
 {
     /// <summary>
-    /// Settings for the when the enemy is chasing the player after detection
+    /// Settings exclusive for the chase state
     /// </summary>
     [CreateAssetMenu (
         fileName = "NewChaseConfig", 
@@ -12,23 +12,14 @@ namespace Snog.EnemyFSM.Configs
     )]
     public class ChaseConfig : ScriptableObject
     {
-        
-        /// <summary>
-        /// Maximum time the enemy will chase the player before giving up.
-        /// </summary>
+        // These variables are for randominzing the chase duration.
+        // The max will never be lower than the min and vice versa
         [SerializeField][Tooltip("Max chase duration in seconds")] private float maxChaseDuration = 20;
-        
-        /// <summary>
-        /// Minimum time the enemy will chase the player before giving up.
-        /// </summary>
         [SerializeField][Tooltip("Min chase duration in seconds")] private float minChaseDuration = 15;
         
-        /// <summary>
-        /// Distance that the enemy needs to be from the player to catch him 
-        /// and trigger a game over
-        /// </summary>
         [SerializeField] private float catchDistance = 1.5f;
 
+        // accessors
         public float MaxChaseDuration => maxChaseDuration;
         public float MinChaseDuration => minChaseDuration;
         public float CatchDistance => catchDistance;

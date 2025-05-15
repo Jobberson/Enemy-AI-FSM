@@ -3,8 +3,10 @@ using UnityEngine;
 namespace Snog.EnemyFSM.Configs 
 {
     /// <summary>
-    /// Settings for when the enemy stops search after a chase and recovers, 
-    /// increasing the difficulty
+    /// Settings exclusive for the recover state
+    /// Note that after recovery the intensity or the enemy increases
+    /// You can tweak the limits at "./EnemyConfig.cs"
+    /// and you can tweak how much they increase at "../Enemy/Utilities/TensionUtils.cs"
     /// </summary>
     [CreateAssetMenu (
         fileName = "NewRecoverConfig", 
@@ -15,6 +17,7 @@ namespace Snog.EnemyFSM.Configs
     {
         [SerializeField][Tooltip("Duration in seconds of the recover state")] private float recoverDuration = 15f;
 
+        // accessor
         public float RecoverDuration => recoverDuration;
 
         private void OnValidate() 

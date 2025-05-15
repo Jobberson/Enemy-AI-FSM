@@ -37,7 +37,7 @@ namespace Snog.EnemyFSM.Enemy.States
             {
                 _ctx.Owner
                     .GetComponent<EnemyStateMachine>()
-                    .EngageChase();
+                    .StartChase();
             }
         }
 

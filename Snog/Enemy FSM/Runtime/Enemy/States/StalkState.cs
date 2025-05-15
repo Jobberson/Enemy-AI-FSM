@@ -44,7 +44,7 @@ namespace Snog.EnemyFSM.Enemy.States
 
                 _ctx.Owner
                     .GetComponent<EnemyStateMachine>()
-                    .ReturnToWander(); // if time is up for stalking
+                    .StartWander(); // if time is up for stalking
             }
 
             // Transition if player seen
@@ -52,7 +52,7 @@ namespace Snog.EnemyFSM.Enemy.States
             {
                 _ctx.Owner
                     .GetComponent<EnemyStateMachine>()
-                    .EngageChase();
+                    .StartChase();
             }
         }
 

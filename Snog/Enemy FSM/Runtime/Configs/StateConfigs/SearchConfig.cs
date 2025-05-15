@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Snog.EnemyFSM.Configs 
 {
     /// <summary>
-    /// Settings for when the enemy loses the player and the chase stops
+    /// Settings exclusively for the search state 
     /// </summary>
     [CreateAssetMenu (
         fileName = "NewSearchConfig", 
@@ -12,13 +12,12 @@ namespace Snog.EnemyFSM.Configs
     )]
     public class SearchConfig : ScriptableObject
     {
-        /// <summary>
-        /// The radius around the lastKnownPosition from the player 
-        /// that the enemy can choose a point to search around.
-        /// </summary>
+        // The radius around the lastKnownPosition of the player that the enemy can choose a point to search around.
         [SerializeField][Tooltip("The radius where the enemy can choose a point to search")] private float searchCircleRadius = 15f;
+        
         [SerializeField][Tooltip("Time to search for the player after losing sight")] private float searchDuration = 10f; 
 
+        // accessors
         public float SearchCircleRadius => searchCircleRadius;
         public float SearchDuration => searchDuration;
 

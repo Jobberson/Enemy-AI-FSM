@@ -102,26 +102,26 @@ namespace Snog.EnemyFSM.Enemy
         }
 
         // Engage chase state.
-        public void EngageChase() => ChangeState(_chaseState);
+        public void StartChase() => ChangeState(_chaseState);
 
         // Return to wander state.
-        public void ReturnToWander() => ChangeState(_wanderState);
+        public void StartWander() => ChangeState(_wanderState);
 
         // Begin investigate state.
-        public void InvestigateAt(Vector3 position)
+        public void StartInvestigate(Vector3 position)
         {
             _context.LastKnownPosition = position;
             ChangeState(_investigateState);
         }
 
         // Begin search state.
-        public void BeginSearch() => ChangeState(_searchState);
+        public void StartSearch() => ChangeState(_searchState);
 
         // Begin recover state.
-        public void BeginRecovery() => ChangeState(_recoverState);
+        public void StartRecovery() => ChangeState(_recoverState);
 
         // Begin stalk state.
-        public void BeginStalk() => ChangeState(_stalkState);
+        public void StartStalk() => ChangeState(_stalkState);
         #endregion
     }
 }

@@ -1,25 +1,19 @@
-using UnityEngine.;
+using UnityEngine;
 
 namespace Snog.EnemyFSM.Core 
 {
     /// <summary>
-    /// Builds each IState using the shared StateContext
+    /// Every state has access to this script 
     /// </summary>
     public class StateContext
     {
-        /// <summary>
-        /// The enemy's transform.
-        /// </summary>
+        // The enemy's transform.
         public Transform Owner { get; set; }
 
-        /// <summary>
-        /// The player's transform 
-        /// </summary>
+        // The player's transform 
         public Transform Player { get; set; }
 
-        /// <summary>
-        /// These are scriptable objects for configurations
-        /// </summary>
+        // These are scriptable objects for configurations
         public EnemyConfig EnemyConfig { get; set; }
         public WanderConfig WanderConfig { get; set; }
         public StalkConfig StalkConfig { get; set; }
@@ -27,14 +21,10 @@ namespace Snog.EnemyFSM.Core
         public SearchConfig SearchConfig { get; set; }
         public RecoverConfig RecoverConfig { get; set; }
 
-        /// <summary>
-        /// This is so that the states can access the movement scripts
-        /// </summary>
+        // This is so that the states can access the movement scripts
         public AStarMovementController AStarController { get; set; }
 
-        /// <summary>
-        /// These are interfaces for movement, vision and noise
-        /// </summary>
+        // These are interfaces for movement, vision and noise
         public IMovementController Movement { get; set; }
         public IVisionDetector Vision { get; set; }
         public INoiseDetector Noise { get; set; }

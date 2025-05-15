@@ -1,12 +1,14 @@
 #if UNITY_EDITOR   
 using UnityEngine;
-using Snog.EnemyFSM.Enemy;      // for EnemyStateMachine
-using Snog.EnemyFSM.Core;       // for StateContext
+using Snog.EnemyFSM.Enemy;
+using Snog.EnemyFSM.Core;
 
 namespace Snog.EnemyFSM.Enemy.Debug
 {
     /// <summary>
-    /// Draws per-state visuals, view cone, noise radius, last known position, etc.
+    /// This script is solely for debug.
+    /// It draws gizmos for the ranges, positions, texts, etc.
+    /// It only draw the gizmos for the current state
     /// </summary>
 
     [RequireComponent(typeof(EnemyStateMachine))]
@@ -37,7 +39,7 @@ namespace Snog.EnemyFSM.Enemy.Debug
         #endregion
         private EnemyStateMachine _esm;
 
-        #region Unity Callbacks
+        #region Unity Methods
         private void Awake()
         {
             _esm = GetComponent<EnemyStateMachine>();
@@ -75,7 +77,7 @@ namespace Snog.EnemyFSM.Enemy.Debug
                     DrawSearchGizmos(lastKnownPlayer, center, ctx);
                     break;
                 case "Recover":
-                    // no extra state gizmos
+                    // add something here if you want
                     break;
             }
 
