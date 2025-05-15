@@ -28,6 +28,11 @@ namespace Snog.EnemyFSM.Core
         public RecoverConfig RecoverConfig { get; set; }
 
         /// <summary>
+        /// This is so that the states can access the movement scripts
+        /// </summary>
+        public AStarMovementController AStarController { get; set; }
+
+        /// <summary>
         /// These are interfaces for movement, vision and noise
         /// </summary>
         public IMovementController Movement { get; set; }

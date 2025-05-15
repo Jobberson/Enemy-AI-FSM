@@ -1,21 +1,47 @@
 using UnityEngine;
+using Snog.EnemyFSM.Core;
+using Snog.EnemyFSM.Configs.StateConfigs;
+using Snog.EnemyFSM.Enemy.Services;
 
-namespace Snog.EnemyFSM.Enemy.States 
+namespace Snog.EnemyFSM.Enemy.States
 {
     /// <summary>
-    /// 
+    /// Enemy Investigates randomly within a circle until it spots the player.
     /// </summary>
     public class InvestigateState : IState
     {
+        #region Fields
         private readonly StateContext _ctx;
-        private float _timer;
+        private readonly InvestigateConfig _config;
+        #endregion
 
-        public InvestigateState(StateContext ctx) { _ctx = ctx; }
+        #region Constructor
+        public InvestigateState(StateContext context, InvestigateConfig config)
+        {
+            _ctx    = context;
+            _config = config;
+        }
+        #endregion
 
-        public Enter() { }
+        #region IState Implementation
 
-        public Tick() { }
+        public void Enter()
+        {
 
-        public Exit() { }
+        }
+
+        public void Tick()
+        {
+            // Transition if player seen
+            if (_ctx.Vision.CanSeePlayer(_ctx.Player))
+            {
+                _ctx.Owner
+                    .GetComponent<EnemyStateMachine>()
+                    .EngageChase();
+            }
+        }
+
+        public void Exit() { }
+        #endregion
     }
 }

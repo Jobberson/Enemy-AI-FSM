@@ -34,5 +34,7 @@ namespace Snog.EnemyFSM.Enemy.Movement
         }
 
         public bool IsAtDestination => _stopped || _aiPath.reachedEndOfPath;
+        public AIPath aIPath => _aiPath;
+        public AIDestinationSetter aIDestinationSetter => _setter;
     }
 }

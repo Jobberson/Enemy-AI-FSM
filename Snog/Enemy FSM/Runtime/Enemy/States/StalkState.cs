@@ -1,21 +1,65 @@
 using UnityEngine;
+using Snog.EnemyFSM.Core;
+using Snog.EnemyFSM.Configs.StateConfigs;
+using Snog.EnemyFSM.Enemy.Services;
 
-namespace Snog.EnemyFSM.Enemy.States 
+namespace Snog.EnemyFSM.Enemy.States
 {
     /// <summary>
-    /// The enemy approahces the player but keeps his distance.
+    /// Enemy Stalks randomly within a circle until it spots the player.
     /// </summary>
     public class StalkState : IState
     {
+        #region Fields
         private readonly StateContext _ctx;
-        private float _timer;
+        private readonly StalkConfig _config;
+        private float timer;
+        #endregion
 
-        public StalkState(StateContext ctx) { _ctx = ctx; }
+        #region Constructor
+        public StalkState(StateContext context, StalkConfig config)
+        {
+            _ctx    = context;
+            _config = config;
+        }
+        #endregion
 
-        public Enter() { }
+        #region IState Implementation
 
-        public Tick() { }
+        public void Enter()
+        {
+            _ctx.AStarController.aIPath.endReachedDistance = _config.stalkingDistance;
+        }
 
-        public Exit() { }
+        public void Tick()
+        {   
+            // Move toward current target
+            _ctx.Movement.MoveTo(_ctx.Player, _ctx.EnemyConfig.investigateSpeed);
+
+            // countdown for the duration
+            timer += Time.deltaTime;
+            if(timer >= _config.stalkDuration)
+            {
+                timer = 0f;
+
+                _ctx.Owner
+                    .GetComponent<EnemyStateMachine>()
+                    .ReturnToWander(); // if time is up for stalking
+            }
+
+            // Transition if player seen
+            if (_ctx.Vision.CanSeePlayer(_ctx.Player))
+            {
+                _ctx.Owner
+                    .GetComponent<EnemyStateMachine>()
+                    .EngageChase();
+            }
+        }
+
+        public void Exit() 
+        {
+            _ctx.AStarController.aIPath.endReachedDistance = 1.2f;
+        }
+        #endregion
     }
 }
