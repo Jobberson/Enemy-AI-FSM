@@ -15,6 +15,9 @@ namespace Snog.EnemyFSM.Enemy.Utils
             float searchCircleRadius,
             float groundY)
         {
+            // clamps radius to 150 to avoid extreme values
+            searchCircleRadius = Mathf.Clamp(searchCircleRadius, 0.1f, 150f);
+
             Vector3 randomOffset = Random.insideUnitSphere * searchCircleRadius;
             randomOffset.y = 0;
             var searchPoint = lastKnownPos + randomOffset;

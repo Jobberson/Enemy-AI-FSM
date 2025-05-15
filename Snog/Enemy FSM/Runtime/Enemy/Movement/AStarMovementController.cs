@@ -2,7 +2,7 @@ using UnityEngine;
 using Pathfinding;
 using Snog.EnemyFSM.Interfaces;
 
-namespace Snog.EnemyFSM.Enemy.Services
+namespace Snog.EnemyFSM.Enemy.Movement
 {
     /// <summary>
     /// IMovementController using A* Pathfinding Project components.

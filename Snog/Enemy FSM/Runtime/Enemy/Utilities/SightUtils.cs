@@ -15,9 +15,14 @@ namespace Snog.EnemyFSM.Enemy.Utils
         {
             if (ctx.Vision.CanSeePlayer(ctx.Player))
             {
-                visibleTimer += Time.deltaTime;
+                visibleTimer = Mathf.Min(visibleTimer + Time.deltaTime, ctx.EnemyConfig.timeToSpotPlayer + 1);
+                
                 if (visibleTimer >= ctx.EnemyConfig.timeToSpotPlayer)
                 {
+                    #if UNITY_EDITOR
+                    Debug.Log($"Player visible for {visibleTimer} seconds.");
+                    #endif
+                    
                     visibleTimer = 0f;
                     return true;
                 }

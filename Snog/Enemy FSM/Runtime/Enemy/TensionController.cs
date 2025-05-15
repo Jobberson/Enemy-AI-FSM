@@ -12,6 +12,10 @@ namespace Snog.EnemyFSM.Enemy
 
         private void Update()
         {
+            
+            if (enemyConfig == null || enemyConfig.aggressionCurve == null)
+                return;
+
             _elapsedTime += Time.deltaTime;
             float tension = enemyConfig.aggressionCurve.Evaluate(_elapsedTime);
 

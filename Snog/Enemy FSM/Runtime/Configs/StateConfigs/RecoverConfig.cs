@@ -3,9 +3,10 @@ using UnityEngine;
 namespace Snog.EnemyFSM.Configs 
 {
     /// <summary>
-    /// Settings for a random-ish wander behavior
+    /// Settings for when the enemy stops search after a chase and recovers, 
+    /// increasing the difficulty
     /// </summary>
-    [CreateAssetmenu (
+    [CreateAssetMenu (
         fileName = "NewRecoverConfig", 
         menuName = "Enemy FSM/Configs/Recover Config", 
         order = 3
@@ -14,9 +15,11 @@ namespace Snog.EnemyFSM.Configs
     {
         [SerializeField][Tooltip("Duration in seconds of the recover state")] private float recoverDuration = 15f;
 
+        public float RecoverDuration => recoverDuration;
+
         private void OnValidate() 
         {
-            // add clamps (max and min) here    
+            recoverDuration = Mathf.Max(0f, recoverDuration); 
         }
     }
 }

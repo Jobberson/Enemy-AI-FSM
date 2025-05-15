@@ -1,2 +1,4 @@
 # Enemy-AI-FSM
-This is a Unity 3D FSM for enemies
+
+This system is still in development, come back soon when it's usable<br>
+Favorite the repository to not forget

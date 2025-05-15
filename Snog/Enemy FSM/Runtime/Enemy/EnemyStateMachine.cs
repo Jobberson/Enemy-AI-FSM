@@ -16,21 +16,19 @@ namespace Snog.EnemyFSM.Enemy
         [Header("General References")]
         [SerializeField] private Transform player;
         [SerializeField][Tooltip("Shared enemy config")] private EnemyConfig enemyConfig;
-        [SerializeField][Tooltip("Config for Wander state")] private WanderConfig wanderConfig;
-        [SerializeField][Tooltip("Config for Chase state")] private ChaseConfig chaseConfig;
-        [SerializeField][Tooltip("Config for Investigate state")] private InvestigateConfig investigateConfig;
-        [SerializeField][Tooltip("Config for Search state")] private SearchConfig searchConfig;
-        [SerializeField][Tooltip("Config for Recover state")] private RecoverConfig recoverConfig;
-        [SerializeField][Tooltip("Config for Stalk state")] private StalkConfig stalkConfig;
-        [SerializeField][Tooltip("Movement controller implementing IMovementController")] private MonoBehaviour movementController;
-        [SerializeField][Tooltip("Vision sensor implementing IVisionDetector")] private EnemyVision vision;
-        [SerializeField][Tooltip("Noise sensor implementing INoiseDetector")] private MonoBehaviour noiseDetection;
-        #endregion
+        [SerializeField][Tooltip("Specific config for wander state")] private WanderConfig wanderConfig;
+        [SerializeField][Tooltip("Specific config for chase state")] private ChaseConfig chaseConfig;
+        [SerializeField][Tooltip("Specific config for investigate state")] private InvestigateConfig investigateConfig;
+        [SerializeField][Tooltip("Specific config for search state")] private SearchConfig searchConfig;
+        [SerializeField][Tooltip("Specific config for recover state")] private RecoverConfig recoverConfig;
+        [SerializeField][Tooltip("Specific config for stalk state")] private StalkConfig stalkConfig;
+        [SerializeField][Tooltip("Movement controller implementing IMovementController")] private MonoBehaviour movementController; // cast to interface
+        [SerializeField][Tooltip("Vision Sensor implementing IVisionDetector")] private EnemyVision vision;
+        [SerializeField][Tooltip("Noise sensor implementing INoiseDetector")] private EnemyNoiseDetection noise;
 
-        #region Private Fields
-        private StateMachine<IState> _fsm;
+        // private variables
+        private StateMachne<IState> _fsm;
         private StateContext _context;
-
         private IState _wanderState;
         private IState _chaseState;
         private IState _investigateState;

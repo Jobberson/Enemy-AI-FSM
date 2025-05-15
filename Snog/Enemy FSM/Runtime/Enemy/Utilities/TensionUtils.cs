@@ -19,8 +19,8 @@ namespace Snog.EnemyFSM.Enemy.Utils
             ref float biasChancePercentage,
             ref float biasAccuracy,
             float minRecoverDuration,
-            float maxMaxChaseDuration,
-            float maxMinChaseDuration,
+            float maxChaseDurationCap,
+            float minChaseDurationCap,
             float minTimeToSpotPlayer,
             float maxViewDistance,
             float maxWanderSpeed,
@@ -30,8 +30,8 @@ namespace Snog.EnemyFSM.Enemy.Utils
             float maxBiasAccuracy)
         {
             recoverDuration       = Mathf.Max(recoverDuration       - 2f, minRecoverDuration);
-            maxChaseDuration      = Mathf.Min(maxChaseDuration      + 2f, maxMaxChaseDuration);
-            minChaseDuration      = Mathf.Min(minChaseDuration      + 2f, maxMinChaseDuration);
+            maxChaseDuration      = Mathf.Min(maxChaseDuration      + 2f, maxChaseDurationCap);
+            minChaseDuration      = Mathf.Min(minChaseDuration      + 2f, minChaseDurationCap);
             timeToSpotPlayer      = Mathf.Max(timeToSpotPlayer      - 0.1f, minTimeToSpotPlayer);
             viewDistance          = Mathf.Min(viewDistance          + 2f, maxViewDistance);
             wanderSpeed           = Mathf.Min(wanderSpeed           + 0.5f, maxWanderSpeed);

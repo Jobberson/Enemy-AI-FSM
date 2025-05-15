@@ -8,26 +8,33 @@ namespace Snog.EnemyFSM.Enemy.Utils
     public static class CombatUtils
     {
         /// <summary>
-        /// Rotates toward player if within catchDistance + 5,
+        /// Rotates smoothly toward player if within catchDistance + buffer,
         /// and kills player if within catchDistance.
         /// </summary>
         public static void CatchPlayer(
             Transform enemyTransform,
             Transform playerTransform,
-            float catchDistance)
+            float catchDistance,
+            float rotationBuffer = 5f,
+            float rotationSpeed = 5f)
         {
             float dist = Vector3.Distance(enemyTransform.position, playerTransform.position);
 
-            if (dist <= catchDistance + 5f)
+            if (dist <= catchDistance + rotationBuffer)
             {
-                var dir = (playerTransform.position - enemyTransform.position).normalized;
-                enemyTransform.rotation = Quaternion.LookRotation(dir);
+                Vector3 direction = (playerTransform.position - enemyTransform.position).normalized;
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                enemyTransform.rotation = Quaternion.RotateTowards(
+                    enemyTransform.rotation,
+                    targetRotation,
+                    rotationSpeed * Time.deltaTime
+                );
             }
 
             if (dist <= catchDistance)
             {
-                // Your game’s death logic:
-                GameManager.Die();
+                GameManager.Die(); // Replace with your actual death logic
+                // I suggest using a game manager with static methods
             }
         }
     }

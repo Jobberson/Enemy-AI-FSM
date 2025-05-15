@@ -1,6 +1,7 @@
+using System;
 using UnityEngine; 
 
-namespace YourBrand.FSM.Core
+namespace Snog.EnemyFSM.Core
 {
     /// <summary>
     /// Generic, reusable finite state machine.
